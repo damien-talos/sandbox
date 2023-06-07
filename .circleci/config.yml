@@ -17,8 +17,14 @@ parameters:
     default: staging
     type: string
 
-cancel-previous-builds: &cancel-previous-builds
+defaults: &defaults
   working_directory: /tmp/workspace
+  docker:
+    - image: cimg/base:2023.06
+  resource_class: small
+
+cancel-previous-builds: &cancel-previous-builds
+  <<: *defaults
   steps:
     - run:
         name: Cancel previous builds
@@ -26,7 +32,7 @@ cancel-previous-builds: &cancel-previous-builds
           ./.circleci/cancel-all-jobs.sh
 
 deps: &deps
-  working_directory: /tmp/workspace
+  <<: *defaults
   steps:
     - run:
         name: Install dependencies
@@ -37,7 +43,7 @@ deps: &deps
           done
           echo "All done"
 build: &build
-  working_directory: /tmp/workspace
+  <<: *defaults
   steps:
     - run:
         name: Long running build task

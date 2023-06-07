@@ -17,37 +17,44 @@ parameters:
     default: staging
     type: string
 
+cancel-previous-builds: &cancel-previous-builds
+  working_directory: /tmp/workspace
+  steps:
+    - run:
+        name: Cancel previous builds
+        command: |
+          ./.circleci/cancel-all-jobs.sh
+
+deps: &deps
+  working_directory: /tmp/workspace
+  steps:
+    - run:
+        name: Install dependencies
+        command: |
+          for i in {1..50}; do
+          echo "Installing dependency $i"
+          sleep 2
+          done
+          echo "All done"
+build: &build
+  working_directory: /tmp/workspace
+  steps:
+    - run:
+        name: Long running build task
+        command: |
+          for i in {1..50}; do
+          echo "Build $i% complete"
+          sleep 5
+          done
+          echo "All done"
+
 jobs:
   cancel-previous-builds:
-    working_directory: /tmp/workspace
-    steps:
-      - run:
-          name: Cancel previous builds
-          command: |
-            ./.circleci/cancel-all-jobs.sh
-
+    <<: *cancel-previous-builds
   deps:
-    working_directory: /tmp/workspace
-    steps:
-      - run:
-          name: Install dependencies
-          command: |
-            for i in {1..50}; do
-            echo "Installing dependency $i"
-            sleep 2
-            done
-            echo "All done"
+    <<: *deps
   build:
-    working_directory: /tmp/workspace
-    steps:
-      - run:
-          name: Long running build task
-          command: |
-            for i in {1..50}; do
-            echo "Build $i% complete"
-            sleep 5
-            done
-            echo "All done"
+    <<: *build
 
 workflows:
   build-deploy-preview:

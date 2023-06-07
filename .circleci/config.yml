@@ -26,6 +26,7 @@ defaults: &defaults
 cancel-previous-builds: &cancel-previous-builds
   <<: *defaults
   steps:
+    - checkout
     - run:
         name: Cancel previous builds
         command: |
@@ -67,12 +68,20 @@ workflows:
     when: << pipeline.parameters.run_build_deploy_preview >>
     jobs:
       - cancel-previous-builds
-      - deps
-      - build
+      - deps:
+          requires:
+            - cancel-previous-builds
+      - build:
+          requires:
+            - deps
 
   build-deploy:
     when: << pipeline.parameters.run_build_deploy >>
     jobs:
       - cancel-previous-builds
-      - deps
-      - build
+      - deps:
+          requires:
+            - cancel-previous-builds
+      - build:
+          requires:
+            - deps

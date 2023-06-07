@@ -22,12 +22,12 @@ echo "Pipeline ids: ${pipeline_ids}"
 
 workflow_ids=$(echo "${pipeline_ids}" | while read pip_id; do
     wf_reqs=$(curl -s -H "Circle-Token: ${CIRCLECI_TOKEN}" "https://circleci.com/api/v2/pipeline/${pip_id}/workflow")
-    echo "$wf_reqs" | jq -r ".items[] | select ( .name == \"${workflow_name}\" and .status == \"running\").id "
+    echo "$wf_reqs" | jq -r ".items[] | select ( .name == \"${workflow_name}\" and .status == \"running\" and .id != \"${CIRCLE_WORKFLOW_ID}\").id "
     wf_next_page_token=$(echo "$wf_reqs" | jq -r '.next_page_token')
 
     while [ "$wf_next_page_token" != "null" ]; do
         wf_reqs=$(curl -s -H "Circle-Token: ${CIRCLECI_TOKEN}" "https://circleci.com/api/v2/pipeline/${pip_id}/workflow?page-token=${next_page_token}")
-        echo "$wf_reqs" | jq -r ".items[] | select ( .name == \"${workflow_name}\" and .status == \"running\").id "
+        echo "$wf_reqs" | jq -r ".items[] | select ( .name == \"${workflow_name}\" and .status == \"running\" and .id != \"${CIRCLE_WORKFLOW_ID}\").id "
         wf_next_page_token=$(echo "$wf_reqs" | jq -r '.next_page_token')
     done
 

@@ -66,7 +66,7 @@ echo "${pipeline_ids}"
 
 # Breakdown of this query:
 # - Select the id of all workflows with the same name as the current workflow, are running, were created before the current workflow, and aren't the current workflow.
-jq_workflow_running_workflow_query=".items[] | select ( .name == \"${workflow_name}\" and .status == \"running\" and .id != \"${CIRCLE_WORKFLOW_ID}\" and .created_at | fromdateiso8601 < \"${workflow_created_at}\") | .id"
+jq_workflow_running_workflow_query=".items[] | select ( .name == \"${workflow_name}\" and .status == \"running\" and .id != \"${CIRCLE_WORKFLOW_ID}\" and ().created_at | fromdateiso8601 < \"${workflow_created_at}\")) | .id"
 
 workflow_ids=$(echo "${pipeline_ids}" | while read -r pip_id; do
     wf_reqs=$(api-get "pipeline/${pip_id}/workflow")
